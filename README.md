@@ -1,2 +1,12 @@
-# Rapid7 Nexpose python scrapping
-NexposeScrapping allows you to collect data on the latest scans, sites, assets, vulnerability, nodes by scraping Nexpose web pages. Allows you to build a report on the results of a scheduled site scan and show a comparison of vulnerabilities and assets from the previous site scan.
+Rapid7 Nexpose Python scrapping
+------------
+This module allows you to get information from Nexpose Rapid7 by scraping web pages
+
+Main features
+-------------
+- get latest scan
+- get assets by site
+- get assets and nodes by scan
+- get active vulnerabilities by scan or site
+- get scan history
+- create report comparing vulnerabilities from a previous scheduled site scan
