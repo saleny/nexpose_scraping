@@ -1,11 +1,14 @@
-from ..nexpose import scraping as np, reports as rp
+from ..nexpose.nexpose_py import Scanner, Vulnerabilities, UserData, Session
+from ..nexpose.reports import Reporter
 
-baseUrl = 'https://nexposeUrl'
-user = np.UserData('username', 'password')
-session = np.ConnectSession(userData=user, baseUrl=baseUrl)
-headers = session.login()
-scanner = np.Scanner(nexposeUrl=baseUrl, headers=headers)
-reporter = rp.Reporter(scanner=scanner)
-reporter.create_report('xls')
-session.logout()
+
+user = UserData('username', 'password')
+url = 'https://nexpose_url:port'
+cert = '/path/to/CA/cert'
+
+session = Session(user, url, verify=cert)
+scan = Scanner(session)
+vuln = Vulnerabilities(session)
+rep = Reporter(scan, vuln, 'report.xlsx')
+rep.create_report('xlsx')
 
