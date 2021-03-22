@@ -62,3 +62,4 @@ class Reporter:
             self.writeToXlsx()
         else:
             print('unknown type')
+

@@ -13,3 +13,4 @@ class Requests:
 
     def _get(self, method):
         return get(f'{self.url}/{method}', headers=self.headers, verify=self.verify)
+

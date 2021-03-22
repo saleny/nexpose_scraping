@@ -1,4 +1,4 @@
-from .special_requests import Requests
+from special_requests import Requests
 from datetime import datetime
 from math import ceil
 from bs4 import BeautifulSoup

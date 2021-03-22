@@ -11,4 +11,3 @@ scan = Scanner(session)
 vuln = Vulnerabilities(session)
 rep = Reporter(scan, vuln, 'report.xlsx')
 rep.create_report('xlsx')
-
