@@ -213,13 +213,3 @@ class Vulnerabilities(Requests):
                 if str(ass['assetID']) in assetsScan:
                     ip_name.update({ass['assetIP']: ass['assetName']})
         return ip_name
-
-
-class IPtoID(Requests):  # хуйня
-    def __init__(self, active_session):
-        super().__init__(active_session.nexpose_url, headers=active_session.headers, verify=active_session.verify)
-
-    def run(self, ips):
-        data = (ips)
-        print(data)
-        return super()._post(f'/data/asset/filterAssets', data)
