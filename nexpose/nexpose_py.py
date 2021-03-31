@@ -87,8 +87,8 @@ class Scanner(Requests):
         """
         scans = list()
         response = super()._post(f'data/scan/site/{siteId}',
-                                'sort=-1&dir=-1&startIndex='
-                                '-1&results=-1&table-id=site-completed-scans').json()['records']
+                                 'sort=-1&dir=-1&startIndex='
+                                 '-1&results=-1&table-id=site-completed-scans').json()['records']
         for scan in response:
             if scan['startedByCD'] == 'S':
                 scans.append(scan['scanID'])
@@ -102,11 +102,11 @@ class Scanner(Requests):
         """
         assets = list()
         response = super()._get(f'data/asset/scan/{scanId}/complete-assets?sort='
-                               '-1&dir=-1&startIndex=-1&results=500&table-id=scan-complete-assets').json()
+                                '-1&dir=-1&startIndex=-1&results=500&table-id=scan-complete-assets').json()
         pages = ceil(int(response['totalRecords']) / 500)
         for i in range(pages):
             response = super()._get(f'data/asset/scan/{scanId}/complete-assets?sort='
-                                   '-1&dir=-1&startIndex=-1&results=500&table-id=scan-complete-assets').json()
+                                    '-1&dir=-1&startIndex=-1&results=500&table-id=scan-complete-assets').json()
             for asset in response['records']:
                 assets.append(asset['assetID'])
         return tuple(assets)
@@ -120,11 +120,11 @@ class Scanner(Requests):
         """
         nodes = dict()
         response = super()._get(f'/data/asset/scan/{scanId}/complete-assets?sort='
-                               '-1&dir=-1&startIndex=-1&results=500&table-id=scan-complete-assets').json()
+                                '-1&dir=-1&startIndex=-1&results=500&table-id=scan-complete-assets').json()
         pages = ceil(int(response['totalRecords']) / 500)
         for i in range(pages):
             response = super()._get(f'/data/asset/scan/{scanId}/complete-assets?sort=-1&dir=-1&startIndex=-1&results'
-                                   f'=500&table-id=scan-complete-assets').json()['records']
+                                    f'=500&table-id=scan-complete-assets').json()['records']
             for node in response:
                 nodes.update({node['ipAddress']: node['nodeID']})
         return nodes
