@@ -19,9 +19,9 @@ class Session(Requests):
 
     def login(self) -> dict:
         data = f'nexposeccusername={self.username}&nexposeccpassword={self.password}'
-        respose = super()._post('data/user/login', data)
-        self.headers['nexposeCCSessionID'] = respose.json()['sessionID']
-        self.headers['Cookie'] = f'i18next=en; time-zone-offset=-180; nexposeCCSessionID={respose.json()["sessionID"]}'
+        response = super()._post('data/user/login', data)
+        self.headers['nexposeCCSessionID'] = response.json()['sessionID']
+        self.headers['Cookie'] = f'i18next=en; time-zone-offset=-180; nexposeCCSessionID={response.json()["sessionID"]}'
         return self.headers
 
     def logout(self) -> None:
