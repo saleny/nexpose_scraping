@@ -84,7 +84,7 @@ class Scanner(Requests):
                     scheduled_scan.append(scan)
         return tuple(scheduled_scan)
 
-    def last_scan_by_site_id(self, siteId):
+    def last_scan_by_site_id(self, siteId: int) -> tuple:
         """
         :param siteId | identificator site, for example lastScanBySiteId(261)
         :return: scans
@@ -97,14 +97,20 @@ class Scanner(Requests):
                                  '-1&results=-1&table-id=site-completed-scans').json()['records']
         for scan in response:
             if scan['startedByCD'] == 'S':
-                scans.append(scan['scanID'])
+                scans.append(scan)
         return tuple(scans)
 
     def assets_by_scan(self, scanId) -> tuple:
         """
         return devices id by scan id
-        :param scanId: | identificator site, for example assetsByScan(261)
-        :return: tuple(devices id)
+        :param scanId: | identification site, for example assetsByScan(261)
+        : Example return: ({'endTime': 1619420760959, 'siteID': 11, 'scanName': 'Regular', 'scanEngineID': 1,
+         'scanID': 252525, 'newScan': False, 'startedByCD': 'S', 'startedBy': None, 'scanEngineNameOrCount': 'engine1',
+          'historyEngineIds': None, 'activeDuration': 225225, 'vulnModerateCount': 25, 'vulnSevereCount': 252,
+           'vulnCriticalCount': 25, 'totalEngines': 1, 'liveHosts': 252, 'vulnerabilityCount': 25, 'engineIDs': None,
+            'siteName': 'mySite', 'riskScore': 25252.22, 'reason': None, 'scanEngineName': 'engine1',
+             'duration': 25549009, 'username': 'admin', 'startTime': 1619395211950, 'status': 'C',
+              'paused': False, 'id': 252525})
         """
         assets = list()
         response = super()._get(f'data/asset/scan/{scanId}/complete-assets?sort='
