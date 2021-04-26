@@ -64,19 +64,25 @@ class Scanner(Requests):
         """
         return super()._post('data/scan/global/scan-history', requestBody).json()['records']
 
-    def last_scan_site_id(self) -> tuple:
+    def last_scheduled_scan_today(self) -> tuple:
         """
-        return site id(tuple) by scan history if scan is scheduled and scan completed is today.
-        Example return: (328, 128, 201)
+        return scheduled scan today (tuple) by scan history if scan is scheduled and scan completed is today.
+        Example return: ({'endTime': 1619420760959, 'siteID': 11, 'scanName': 'Regular', 'scanEngineID': 1,
+         'scanID': 252525, 'newScan': False, 'startedByCD': 'S', 'startedBy': None, 'scanEngineNameOrCount': 'engine1',
+          'historyEngineIds': None, 'activeDuration': 225225, 'vulnModerateCount': 25, 'vulnSevereCount': 252,
+           'vulnCriticalCount': 25, 'totalEngines': 1, 'liveHosts': 252, 'vulnerabilityCount': 25, 'engineIDs': None,
+            'siteName': 'mySite', 'riskScore': 25252.22, 'reason': None, 'scanEngineName': 'engine1',
+             'duration': 25549009, 'username': 'admin', 'startTime': 1619395211950, 'status': 'C',
+              'paused': False, 'id': 252525})
          """
-        site_ids = list()
+        scheduled_scan = list()
         for scan in self.scan_history(
                 requestBody='sort=-1&dir=-1&startIndex=-1&results=-1&table-id=global-completed-scans'):
             if scan['startedByCD'] == 'S':
                 if datetime.fromtimestamp((scan['endTime'] // 1000)).strftime('%Y%m%d') == datetime.now().strftime(
                         '%Y%m%d'):
-                    site_ids.append(scan['siteID'])
-        return tuple(site_ids)
+                    scheduled_scan.append(scan)
+        return tuple(scheduled_scan)
 
     def last_scan_by_site_id(self, siteId):
         """
