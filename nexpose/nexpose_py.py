@@ -104,13 +104,37 @@ class Scanner(Requests):
         """
         return devices id by scan id
         :param scanId: | identification site, for example assetsByScan(261)
-        : Example return: ({'endTime': 1619420760959, 'siteID': 11, 'scanName': 'Regular', 'scanEngineID': 1,
-         'scanID': 252525, 'newScan': False, 'startedByCD': 'S', 'startedBy': None, 'scanEngineNameOrCount': 'engine1',
-          'historyEngineIds': None, 'activeDuration': 225225, 'vulnModerateCount': 25, 'vulnSevereCount': 252,
-           'vulnCriticalCount': 25, 'totalEngines': 1, 'liveHosts': 252, 'vulnerabilityCount': 25, 'engineIDs': None,
-            'siteName': 'mySite', 'riskScore': 25252.22, 'reason': None, 'scanEngineName': 'engine1',
-             'duration': 25549009, 'username': 'admin', 'startTime': 1619395211950, 'status': 'C',
-              'paused': False, 'id': 252525})
+        : Example return:
+        ({
+        'endTime': 1619420760959,
+         'siteID': 11,
+         'scanName': 'Regular',
+         'scanEngineID': 1,
+         'scanID': 252525,
+         'newScan': False,
+         'startedByCD': 'S',
+         'startedBy': None,
+         'scanEngineNameOrCount': 'engine1',
+         'historyEngineIds': None,
+         'activeDuration': 225225,
+         'vulnModerateCount': 25,
+         'vulnSevereCount': 252,
+         'vulnCriticalCount': 25,
+         'totalEngines': 1,
+         'liveHosts': 252,
+         'vulnerabilityCount': 25,
+         'engineIDs': None,
+         'siteName': 'mySite',
+         'riskScore': 25252.22,
+         'reason': None,
+         'scanEngineName': 'engine1',
+         'duration': 25549009,
+         'username': 'admin',
+         'startTime': 1619395211950,
+         'status': 'C',
+         'paused': False,
+         'id': 252525
+         })
         """
         assets = list()
         response = super()._get(f'data/asset/scan/{scanId}/complete-assets?sort='
