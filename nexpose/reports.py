@@ -37,12 +37,12 @@ class Reporter:
         sheet['A1'].font = sheet['B1'].font = sheet['C1'].font = Font(bold=True)
         sheet['A1'].alignment = sheet['B1'].alignment = sheet['C1'].alignment = Alignment(horizontal="center")
         num, sd = 0, [2]
-        for i in vuln_ids.keys:
+        for i in vuln_ids:
             sheet[f'A{num + 2}'] = vuln_ids[i][0]
             sheet[f'B{num + 2}'] = vulnerabilities.vuln_description(i)
             sheet[f'A{num + 2}'].alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
             sheet[f'B{num + 2}'].alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
-            if vuln_ids[i][1] is not None:
+            if vuln_ids[i][1]:
                 sheet[f'A{num + 2}'].font = Font(color='4169E1', bold=True)
             keys_asset_vuln = vulnerabilities.asset_vulners(i, assets_scan)
             if keys_asset_vuln == {}:
