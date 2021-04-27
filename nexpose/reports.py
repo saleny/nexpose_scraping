@@ -11,7 +11,7 @@ class Reporter:
         self.previous_scan = previous_scan
         self.site_id = site_id
 
-    def writeToXlsx(self):
+    def writeToXlsx(self, SD=None, dont_touch=None) -> None:
         scanner = self.scanner
         vulnerabilities = self.vulnerabilities
         if not self.current_scan or not self.previous_scan or not self.site_id:
@@ -36,21 +36,33 @@ class Reporter:
         sheet.auto_filter.ref = 'A1:D1'
         sheet['A1'].font = sheet['B1'].font = sheet['C1'].font = Font(bold=True)
         sheet['A1'].alignment = sheet['B1'].alignment = sheet['C1'].alignment = Alignment(horizontal="center")
-        num, sd = 0, [2]
+        num, num_list = 0, [2]
         for i in vuln_ids:
             sheet[f'A{num + 2}'] = vuln_ids[i][0]
+            # print(vuln_ids[i], vulnerabilities.vuln_description(i))
             sheet[f'B{num + 2}'] = vulnerabilities.vuln_description(i)
             sheet[f'A{num + 2}'].alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
             sheet[f'B{num + 2}'].alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
+            # include exploit
             if vuln_ids[i][1]:
                 sheet[f'A{num + 2}'].font = Font(color='4169E1', bold=True)
-            keys_asset_vuln = vulnerabilities.asset_vulners(i, assets_scan)
-            if keys_asset_vuln == {}:
+            # integration with it-assets (exclude dont_touch assets)
+            if SD and dont_touch:
+                keys_asset_vuln = vulnerabilities.asset_vulners(i, assets_scan)
+                assets_without_critical_system = dict()
+                for asset in keys_asset_vuln:
+                    parent = SD.parent_ius(asset)
+                    if not set(parent.split(' ')).intersection(dont_touch):
+                        assets_without_critical_system[asset] = keys_asset_vuln[asset]
+            else:
+                assets_without_critical_system = vulnerabilities.asset_vulners(i, assets_scan)
+            if assets_without_critical_system == {}:
                 sheet[f'A{num + 2}'] = None
+                sheet[f'B{num + 2}'] = None
                 continue
             else:
-                for j in keys_asset_vuln:
-                    sheet[f'D{num + 2}'] = f'{j} ({keys_asset_vuln[j]})'
+                for j in assets_without_critical_system:
+                    sheet[f'D{num + 2}'] = f'{j} ({assets_without_critical_system[j]})'
                     try:
                         if i in vulnerabilities.vuln_by_node(nodes_scan[j]):
                             sheet[f'D{num + 2}'].font = Font(color='FF0000', bold=True)
@@ -58,16 +70,15 @@ class Reporter:
                         continue
                     finally:
                         num += 1
-            sd.append(num + 2)
-        for i in range(len(sd) - 1):
-            sheet.merge_cells(f'A{sd[i]}:A{sd[i + 1] - 1}')
-            sheet.merge_cells(f'B{sd[i]}:B{sd[i + 1] - 1}')
-            sheet.merge_cells(f'C{sd[i]}:C{sd[i + 1] - 1}')
+            num_list.append(num + 2)
+        for i in range(len(num_list) - 1):
+            sheet.merge_cells(f'A{num_list[i]}:A{num_list[i + 1] - 1}')
+            sheet.merge_cells(f'B{num_list[i]}:B{num_list[i + 1] - 1}')
+            sheet.merge_cells(f'C{num_list[i]}:C{num_list[i + 1] - 1}')
         xlsx.save(f'{self.name}.xlsx')
 
-    def create_report(self, report_type):
+    def create_report(self, report_type, SD=None, dont_touch=None) -> None:
         if report_type == 'xlsx':
-            self.writeToXlsx()
+            self.writeToXlsx(SD, dont_touch)
         else:
             print('unknown type')
-

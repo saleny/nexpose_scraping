@@ -186,7 +186,8 @@ class Vulnerabilities(Requests):
         soup = BeautifulSoup(contents, 'lxml').find_all('div', class_='remediation')
         for string in soup[0].stripped_strings:
             description.append(
-                repr(string).replace('\\n       ', '').replace('\\n      ', '').replace("'", "").replace('"', ''))
+            repr(string).replace(
+                '\\n       ', '').replace('\\n      ', '').replace('\\n    ', '').replace("'", "").replace('"', ''))
         return ''.join(description)
 
     def vuln_by_node(self, nodeId) -> tuple:
