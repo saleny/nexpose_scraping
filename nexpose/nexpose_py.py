@@ -1,4 +1,4 @@
-from .special_requests import Requests
+from special_requests import Requests
 from datetime import datetime
 from math import ceil
 from bs4 import BeautifulSoup
@@ -19,9 +19,9 @@ class Session(Requests):
 
     def login(self) -> dict:
         data = f'nexposeccusername={self.username}&nexposeccpassword={self.password}'
-        response = super()._post('data/user/login', data)
-        self.headers['nexposeCCSessionID'] = response.json()['sessionID']
-        self.headers['Cookie'] = f'i18next=en; time-zone-offset=-180; nexposeCCSessionID={response.json()["sessionID"]}'
+        respose = super()._post('data/user/login', data)
+        self.headers['nexposeCCSessionID'] = respose.json()['sessionID']
+        self.headers['Cookie'] = f'i18next=en; time-zone-offset=-180; nexposeCCSessionID={respose.json()["sessionID"]}'
         return self.headers
 
     def logout(self) -> None:
@@ -64,27 +64,21 @@ class Scanner(Requests):
         """
         return super()._post('data/scan/global/scan-history', requestBody).json()['records']
 
-    def last_scheduled_scan_today(self) -> tuple:
+    def last_scan_site_id(self) -> tuple:
         """
-        return scheduled scan today (tuple) by scan history if scan is scheduled and scan completed is today.
-        Example return: ({'endTime': 1619420760959, 'siteID': 11, 'scanName': 'Regular', 'scanEngineID': 1,
-         'scanID': 252525, 'newScan': False, 'startedByCD': 'S', 'startedBy': None, 'scanEngineNameOrCount': 'engine1',
-          'historyEngineIds': None, 'activeDuration': 225225, 'vulnModerateCount': 25, 'vulnSevereCount': 252,
-           'vulnCriticalCount': 25, 'totalEngines': 1, 'liveHosts': 252, 'vulnerabilityCount': 25, 'engineIDs': None,
-            'siteName': 'mySite', 'riskScore': 25252.22, 'reason': None, 'scanEngineName': 'engine1',
-             'duration': 25549009, 'username': 'admin', 'startTime': 1619395211950, 'status': 'C',
-              'paused': False, 'id': 252525})
+        return site id(tuple) by scan history if scan is scheduled and scan completed is today.
+        Example return: (328, 128, 201)
          """
-        scheduled_scan = list()
+        site_ids = list()
         for scan in self.scan_history(
                 requestBody='sort=-1&dir=-1&startIndex=-1&results=-1&table-id=global-completed-scans'):
             if scan['startedByCD'] == 'S':
                 if datetime.fromtimestamp((scan['endTime'] // 1000)).strftime('%Y%m%d') == datetime.now().strftime(
                         '%Y%m%d'):
-                    scheduled_scan.append(scan)
-        return tuple(scheduled_scan)
+                    site_ids.append(scan['siteID'])
+        return tuple(site_ids)
 
-    def last_scan_by_site_id(self, siteId: int) -> tuple:
+    def last_scan_by_site_id(self, siteId):
         """
         :param siteId | identificator site, for example lastScanBySiteId(261)
         :return: scans
@@ -93,56 +87,26 @@ class Scanner(Requests):
         """
         scans = list()
         response = super()._post(f'data/scan/site/{siteId}',
-                                 'sort=-1&dir=-1&startIndex='
-                                 '-1&results=-1&table-id=site-completed-scans').json()['records']
+                                'sort=-1&dir=-1&startIndex='
+                                '-1&results=-1&table-id=site-completed-scans').json()['records']
         for scan in response:
             if scan['startedByCD'] == 'S':
-                scans.append(scan)
+                scans.append(scan['scanID'])
         return tuple(scans)
 
     def assets_by_scan(self, scanId) -> tuple:
         """
         return devices id by scan id
-        :param scanId: | identification site, for example assetsByScan(261)
-        : Example return:
-        ({
-        'endTime': 1619420760959,
-         'siteID': 11,
-         'scanName': 'Regular',
-         'scanEngineID': 1,
-         'scanID': 252525,
-         'newScan': False,
-         'startedByCD': 'S',
-         'startedBy': None,
-         'scanEngineNameOrCount': 'engine1',
-         'historyEngineIds': None,
-         'activeDuration': 225225,
-         'vulnModerateCount': 25,
-         'vulnSevereCount': 252,
-         'vulnCriticalCount': 25,
-         'totalEngines': 1,
-         'liveHosts': 252,
-         'vulnerabilityCount': 25,
-         'engineIDs': None,
-         'siteName': 'mySite',
-         'riskScore': 25252.22,
-         'reason': None,
-         'scanEngineName': 'engine1',
-         'duration': 25549009,
-         'username': 'admin',
-         'startTime': 1619395211950,
-         'status': 'C',
-         'paused': False,
-         'id': 252525
-         })
+        :param scanId: | identificator site, for example assetsByScan(261)
+        :return: tuple(devices id)
         """
         assets = list()
         response = super()._get(f'data/asset/scan/{scanId}/complete-assets?sort='
-                                '-1&dir=-1&startIndex=-1&results=500&table-id=scan-complete-assets').json()
+                               '-1&dir=-1&startIndex=-1&results=500&table-id=scan-complete-assets').json()
         pages = ceil(int(response['totalRecords']) / 500)
         for i in range(pages):
             response = super()._get(f'data/asset/scan/{scanId}/complete-assets?sort='
-                                    '-1&dir=-1&startIndex=-1&results=500&table-id=scan-complete-assets').json()
+                                   '-1&dir=-1&startIndex=-1&results=500&table-id=scan-complete-assets').json()
             for asset in response['records']:
                 assets.append(asset['assetID'])
         return tuple(assets)
@@ -156,11 +120,11 @@ class Scanner(Requests):
         """
         nodes = dict()
         response = super()._get(f'/data/asset/scan/{scanId}/complete-assets?sort='
-                                '-1&dir=-1&startIndex=-1&results=500&table-id=scan-complete-assets').json()
+                               '-1&dir=-1&startIndex=-1&results=500&table-id=scan-complete-assets').json()
         pages = ceil(int(response['totalRecords']) / 500)
         for i in range(pages):
             response = super()._get(f'/data/asset/scan/{scanId}/complete-assets?sort=-1&dir=-1&startIndex=-1&results'
-                                    f'=500&table-id=scan-complete-assets').json()['records']
+                                   f'=500&table-id=scan-complete-assets').json()['records']
             for node in response:
                 nodes.update({node['ipAddress']: node['nodeID']})
         return nodes
@@ -186,36 +150,8 @@ class Vulnerabilities(Requests):
         soup = BeautifulSoup(contents, 'lxml').find_all('div', class_='remediation')
         for string in soup[0].stripped_strings:
             description.append(
-                repr(string).replace(
-                    '\\n       ', '').replace('\\n      ', '').replace('\\n    ', '').replace("'", "").replace('"', ''))
+                repr(string).replace('\\n       ', '').replace('\\n      ', '').replace("'", "").replace('"', ''))
         return ''.join(description)
-
-    def vuln_solution(self, vulnId, assetId):
-        solutions = dict()
-        response = super()._get(f'vulnerability/vuln-summary.jsp?vulnid={vulnId}&devid={assetId}')
-        contents = response.text
-        soup = BeautifulSoup(contents, 'lxml').find('div', id='bestRemediations')
-        remedationSummary = ' '.join(soup.find('div', class_='remediationSummary').text.split())
-        remedationSubSummary = soup.find_all('div', class_='remediationSubSummary')
-        remedationSteps = soup.find_all('div', class_='remediationSteps')
-        endSteps = list()
-        for i in remedationSteps:
-            for j in i.findChildren()[0].findChildren():
-                if j.name == 'pre':
-                    endSteps.append(f"!{j.text}!")
-                elif not ' '.join(j.text.split()):
-                    pass
-                elif j.name == 'a':
-                    pass
-                else:
-                    endSteps.append(' '.join(j.text.split()))
-        endSubSummary = [' '.join(i.text.split()) for i in remedationSubSummary]
-        if not endSubSummary:
-            solutions.update({'': [x for x in endSteps]})
-        else:
-            for i in endSubSummary:
-                solutions.update({i: endSteps[endSubSummary.index(i)]})
-        return remedationSummary, solutions
 
     def vuln_by_node(self, nodeId) -> tuple:
         """
@@ -275,5 +211,5 @@ class Vulnerabilities(Requests):
                                      f'=vulnerability-proof&vulnid={vulnIds}').json()
             for ass in response['records']:
                 if str(ass['assetID']) in assetsScan:
-                    ip_name.update({ass['assetIP']: [ass['assetName'], ass['assetID']]})
+                    ip_name.update({ass['assetIP']: ass['assetName']})
         return ip_name
